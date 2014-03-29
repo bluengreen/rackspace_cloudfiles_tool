@@ -1,0 +1,5 @@
+# config yaml for rackspace
+user: <rackspace_username>
+key: <rackspace_api_key>
+newuser_name: <server_username>
+newuser_passwd: <server_user_password>
