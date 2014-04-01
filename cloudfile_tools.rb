@@ -82,7 +82,7 @@ class CloudfileTools < Thor
   ##
   ## list containers
   ##
-  method_option :region, :aliases => "-r", :desc => "region"      
+  method_option :region, :aliases => "-r", :desc => "region"
   desc "list_containers", "list containers"
   def list_containers
     puts "list_containers"    
@@ -94,11 +94,17 @@ class CloudfileTools < Thor
   ##
   ## list files
   ##
+  method_option :region, :required => true, :aliases => "-r", :desc => "region"
+  method_option :container, :required => true, :aliases => "-c", :desc => "container"
   desc "list_files", "list files in container"
   def list_files
     puts "list_files"    
     puts "===================="
-    storage = authenticate(options[:config_file]) 
+    storage = authenticate(options[:config_file], options[:region]) 
+    directory = storage.directories.get(options["container"])
+    directory.files.each do |file|
+      pp file.key
+    end
   end
   
   ##
@@ -130,7 +136,7 @@ class CloudfileTools < Thor
   
  private
   
-  def authenticate(file_name, region = '', service_net = '')
+  def authenticate(file_name, region = '', service_net = false)
     # load the configuration file with connection parameters
     @@config ||= YAML.load_file(file_name)
     # init the databasedotcom gem with the specified yml config file
@@ -143,7 +149,7 @@ class CloudfileTools < Thor
     end
         
     rackspace_credentials.merge!({:rackspace_region  => region.downcase.to_sym}) if !region.nil?
-    #rackspace_credentials.merge({:rackspace_servicenet  => opts['service_net']}) if !opts['service_net'].nil? 
+    rackspace_credentials.merge!({:rackspace_servicenet  => service_net}) if !service_net.nil? 
     
     pp rackspace_credentials
     
